@@ -1,0 +1,1 @@
+# Word Guessr AI Solver
