@@ -1,3 +1,11 @@
+from numpy import *
+import pandas as pd
+import matplotlib.pyplot as plt
+import sympy as sp
+from typing import Union, Callable, List
+import scipy as sc
+
+
 class Regression():
     def __init__(self, function: Union[sp.Expr, sp.Symbol]=None, x_data: Union[list, ndarray]=None,
                  y_data: Union[list, ndarray]=None, variables: List[sp.Symbol]=None, parameters: List[sp.Symbol]=None):
