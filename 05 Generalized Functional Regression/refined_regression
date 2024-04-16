@@ -1,0 +1,34 @@
+class Regression():
+    def __init__(self, function: Union[sp.Expr, sp.Symbol]=None, x_data: Union[list, ndarray]=None,
+                 y_data: Union[list, ndarray]=None, variables: List[sp.Symbol]=None, parameters: List[sp.Symbol]=None):
+        self.function = sp.lambdify(tuple(variables + parameters), function, 'numpy')
+        self.x_data = x_data
+        self.y_data = y_data
+        self.variables = variables
+        self.parameters = parameters
+
+    def loss_function(self):
+        x_data_ = np.array([self.x_data[:, i] for i in range(self.x_data.shape[1])])
+        fill_vars = lambda *args: self.function(*x_data_, *args)
+        loss = lambda *args: np.dot(self.y_data - fill_vars(*args), self.y_data - fill_vars(*args))
+        return loss
+
+    def estimates(self, h=10**(-12), guess=None):
+        if guess is None:
+            guess = [1 for _ in range(len(self.parameters))]]
+        
+        div_start = lambda *args: (self.function(args[0] + h, *args[1:]) - self.function(*args))/h
+        div_end = lambda *args: (self.function(*args[:-1], args[-1] + h) - self.function(*args))/h
+        
+        derivatives = [div_start]
+        
+        for i in range(1, 2):
+            derivatives.append(lambda *args: (self.function(*args[:i], args[i] + h, *args[i+1:]) - self.function(*args))/h)
+            
+        derivatives.append(div_end)
+        div_function = lambda args: np.array([derivative(*args) for derivative in derivatives])
+        
+        return sc.optimize.fsolve(div_function, guess)
+
+    def write(self, estimates):
+        ...
